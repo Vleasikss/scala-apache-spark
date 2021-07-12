@@ -1,20 +1,60 @@
 package org.example
 
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SparkSession
+import org.apache.hadoop.util.ShutdownHookManager
+import org.apache.spark.sql.SparkSession.setActiveSession
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.functions.{col, not}
 
-object Main {
+/**
+ * Transformation are LAZY,
+ *  - always return DataFrame
+ *  - immutable
+ *  - has wide and narrow operations
+ *  - contains two types of casting: typed (return DaraFrame) && untyped (return DataSet[T])
+ *    Actions are EAGER
+ *  - always return result or write on disk
+ *
+ *
+ * Wide vs Narrow transformations:
+ *  - narrow transformation:
+ *    - calculates for only partition that locates no more than one partition of parent RDD
+ *    - for example:
+ *      - filter(..)
+ *      - drop(..)
+ *      - coalesce(..)
+ *  - wide transformation:
+ *    - calculates for only partition that can be located in many partitions of parent RDD
+ *    - for example:
+ *      - distinct()
+ *      - groupBy(..).sum()
+ *      - repartition(n)
+ *
+ */
+object Main extends App{
 
   val MASTER = "local[*]"
   val APP_NAME = "app-name"
   val CSV_FILE_PATH = "data.csv"
   val JSON_FILE_PATH = "data.json"
 
-  def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder
-      .master(MASTER)
-      .appName(APP_NAME)
-      .getOrCreate()
+  val spark = SparkSession.builder
+    .master(MASTER)
+    .appName(APP_NAME)
+    .getOrCreate()
 
-  }
+  val read: Dataset[Row] = spark.read
+    .option("inferSchema", "true")
+    .option("header", "true")
+    .csv(CSV_FILE_PATH)
+    //      .schema(schema) // if not exists, a job will be called
+    .where("id > 130") // transformation
+    .drop("firstname") // transformation
+    .filter(col("id").notEqual("149")) // transformation
+    .filter(col("id").notEqual("138")) // transformation
+    .filter(not(col("email").startsWith("Wendi"))) // transformation
+
+  //    read.show()
+  //    spark.close()
+
+
 }
