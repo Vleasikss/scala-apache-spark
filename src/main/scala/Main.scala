@@ -1,7 +1,6 @@
 package org.example
 
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, Dataset, Row, SparkSession}
 
 object Main {
 
@@ -94,12 +93,41 @@ object Main {
   }
 
   /**
+   *
+   * @param df  - dataFrame
+   * @param col - column to sort by
+   * @return sorted dataFrame by col descending
+   */
+  def orderByDesc(df: DataFrame, col: Column): DataFrame = {
+    val orderedByCol = df.orderBy(col.desc)
+    orderedByCol
+  }
+
+  /**
+   *
+   * @param df - dataFrame
+   * @param limit - limit of mapping
+   * @return rows array
+   */
+  def getFirst10Results(df: DataFrame, limit: Int = 10): Array[Row] = {
+    df.take(limit)
+  }
+  def printResults(array: Array[Row]): Unit = {
+    val idFieldName = "id"
+    val firstNameFieldName = "firstname"
+    array.map(row => (
+      row.getAs(idFieldName),
+      row.getAs(firstNameFieldName))
+    ).foreach(println)
+  }
+
+  /**
    * creates temporary view to create sql queries
    *
-   * @param spark - sparkSession
+   * @param spark     - sparkSession
    * @param dataFrame - dataFrame
-   * @param viewName - temporary sql table name
-   * @param sqlQuery - sql query to be proceeded
+   * @param viewName  - temporary sql table name
+   * @param sqlQuery  - sql query to be proceeded
    * @return results of proceeded sql query
    */
   def doSqlTransformation(spark: SparkSession, dataFrame: DataFrame, viewName: String, sqlQuery: String): DataFrame = {
@@ -129,5 +157,8 @@ object Main {
 
     val viewName = "temporaryTable"
     doSqlTransformation(spark, df, viewName, s"SELECT * FROM $viewName WHERE id > 140")
+
+    val results = getFirst10Results(df)
+    printResults(results)
   }
 }
