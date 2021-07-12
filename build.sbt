@@ -13,6 +13,7 @@ libraryDependencies ++= {
     "org.scalatest" %% "scalatest" % "3.2.9",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
     "org.apache.spark" %% "spark-core" % SPARK_VERSION,
-    "org.apache.spark" %% "spark-sql" % SPARK_VERSION
+    "org.apache.spark" %% "spark-sql" % SPARK_VERSION,
+    "mysql" % "mysql-connector-java" % "8.0.23"
   )
 }
