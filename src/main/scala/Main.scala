@@ -1,8 +1,14 @@
 package org.example
 
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
+/**
+ * Results:
+ *  - Аналогично как из CSV, при указании схемы, мы избегаем дополнительного задания (Job).
+ *  - Через схему можем указать новый тип данных.
+ *  - Схема может быть сложной по своей структуре.
+ */
 object Main {
 
   val MASTER = "local[*]"
@@ -15,6 +21,14 @@ object Main {
       .master(MASTER)
       .appName(APP_NAME)
       .getOrCreate()
+
+    val df: DataFrame = spark.read
+      .option("inferSchema", "true")
+      .option("multiline", "true") // allows to use json files with tabulation/spaces
+      .json(JSON_FILE_PATH)
+
+    df.show()
+    df.printSchema()
 
   }
 }
