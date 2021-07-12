@@ -5,20 +5,16 @@ import org.apache.spark.sql.SparkSession
 
 object Main {
 
+  val MASTER = "local[*]"
+  val APP_NAME = "app-name"
+  val CSV_FILE_PATH = "data.csv"
+  val JSON_FILE_PATH = "data.json"
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder
-      .master("local[*]")
-      .appName("Spark Word Count")
+      .master(MASTER)
+      .appName(APP_NAME)
       .getOrCreate()
-    val lines = spark.sparkContext.parallelize(
-      Seq("Hello World\nBye world"))
 
-    val counts = lines
-      .flatMap(line => line.split("\n"))
-      .map(word => (word, 1))
-      .reduceByKey(_ + _)
-
-    counts.foreach(println)
   }
 }
