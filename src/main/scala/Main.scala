@@ -9,32 +9,24 @@ object Main {
   val APP_NAME = "app-name"
   val MASTER = "local[*]"
   val CSV_FILE_PATH = "data.csv"
+  val JSON_FILE_PATH = "data.json"
 
   //  val conf: SparkConf = new SparkConf().setAppName(APP_NAME).setMaster(MASTER)
   //  val sc: SparkContext = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
-    val session = SparkSession.builder()
+    val spark = SparkSession.builder()
       .master("local")
       .appName(APP_NAME)
       .getOrCreate()
+    spark.sparkContext.setLogLevel("ERROR")
+    val df: DataFrame = spark.read
+      .option("inferSchema", "true") // Automatically infer data types & column names
+      .option("multiline", "true")
+      .json(JSON_FILE_PATH)
 
-
-    val csvSchema = StructType(Array(
-      StructField("id", DataTypes.IntegerType),
-      StructField("firstname", DataTypes.StringType, false),
-      StructField("lastname", DataTypes.StringType),
-      StructField("email", DataTypes.BooleanType),
-      StructField("email2", DataTypes.StringType),
-      StructField("profession", DataTypes.StringType)))
-
-    val df = session.read
-      .option("delimiter", ",") // use comma delimiter
-      .option("header", "true") // first line of csv is table-headers
-      .option("inferSchema", "true") // automatically parse data-types
-      .schema(csvSchema)
-      .csv(CSV_FILE_PATH)
     df.printSchema()
     df.show()
+
   }
 }
