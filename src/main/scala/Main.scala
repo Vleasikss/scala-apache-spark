@@ -1,7 +1,9 @@
 package org.example
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
+
 
 object Main {
 
@@ -12,10 +14,17 @@ object Main {
   val sc: SparkContext = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
-    val inputData = List[Double](35.5, 12.42341, 90.32)
-    val rdd:RDD[Double] = sc.parallelize(inputData)
+    Logger.getLogger("org.apache").setLevel(Level.WARN)
+
+    val inputData = List[Int](35, 12, 90)
+    val rdd:RDD[Int] = sc.parallelize(inputData)
+
 
     val res = rdd.reduce((val1, val2) => val1 + val2)
-    println(res) // 138.24340999999998
+    println(res) // 137
+
+    val resMap = rdd.map(value => scala.math.sqrt(value))
+    println(resMap)
+    resMap.foreach(println)
   }
 }
