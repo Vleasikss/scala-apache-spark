@@ -1,30 +1,40 @@
 package org.example
 
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql._
+import org.apache.spark.sql.types.{DataTypes, IntegerType, StructField, StructType}
 
 
 object Main {
 
   val APP_NAME = "app-name"
   val MASTER = "local[*]"
+  val CSV_FILE_PATH = "data.csv"
 
-  val conf: SparkConf = new SparkConf().setAppName(APP_NAME).setMaster(MASTER)
-  val sc: SparkContext = new SparkContext(conf)
+  //  val conf: SparkConf = new SparkConf().setAppName(APP_NAME).setMaster(MASTER)
+  //  val sc: SparkContext = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
-    Logger.getLogger("org.apache").setLevel(Level.WARN)
+    val session = SparkSession.builder()
+      .master("local")
+      .appName(APP_NAME)
+      .getOrCreate()
 
-    val inputData = List[Int](35, 12, 90)
-    val rdd:RDD[Int] = sc.parallelize(inputData)
 
+    val csvSchema = StructType(Array(
+      StructField("id", DataTypes.IntegerType),
+      StructField("firstname", DataTypes.StringType, false),
+      StructField("lastname", DataTypes.StringType),
+      StructField("email", DataTypes.BooleanType),
+      StructField("email2", DataTypes.StringType),
+      StructField("profession", DataTypes.StringType)))
 
-    val res = rdd.reduce((val1, val2) => val1 + val2)
-    println(res) // 137
-
-    val resMap = rdd.map(value => scala.math.sqrt(value))
-    println(resMap)
-    resMap.foreach(println)
+    val df = session.read
+      .option("delimiter", ",") // use comma delimiter
+      .option("header", "true") // first line of csv is table-headers
+      .option("inferSchema", "true") // automatically parse data-types
+      .schema(csvSchema)
+      .csv(CSV_FILE_PATH)
+    df.printSchema()
+    df.show()
   }
 }
