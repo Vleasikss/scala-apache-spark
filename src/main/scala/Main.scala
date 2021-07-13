@@ -105,13 +105,22 @@ object Main {
 
   /**
    *
-   * @param df - dataFrame
+   * @param df    - dataFrame
    * @param limit - limit of mapping
    * @return rows array
    */
   def getFirst10Results(df: DataFrame, limit: Int = 10): Array[Row] = {
     df.take(limit)
   }
+
+  /**
+   * Partition is a part of rdd
+   * rdd divides on n count of partitions to work with the data paralleled
+   * @param df - dataFrame
+   * @return num of partitions in rdd
+   */
+  def getNumOfPartitions(df: DataFrame): Int = df.rdd.getNumPartitions
+
   def printResults(array: Array[Row]): Unit = {
     val idFieldName = "id"
     val firstNameFieldName = "firstname"
@@ -157,8 +166,11 @@ object Main {
 
     val viewName = "temporaryTable"
     doSqlTransformation(spark, df, viewName, s"SELECT * FROM $viewName WHERE id > 140")
+    println(getNumOfPartitions(df))
 
     val results = getFirst10Results(df)
     printResults(results)
+
+    println(getNumOfPartitions(df))
   }
 }
