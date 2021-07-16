@@ -5,6 +5,8 @@ import org.apache.spark.sql.SparkSession.setActiveSession
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.sql.functions.{col, not}
 
+import java.util.Scanner
+
 /**
  * Transformation are LAZY,
  *  - always return DataFrame
@@ -29,6 +31,10 @@ import org.apache.spark.sql.functions.{col, not}
  *      - groupBy(..).sum()
  *      - repartition(n)
  *
+ * use (mapToPair && reduceByKey) instead of groupByKey -> it works faster
+ * reduceByKey contains two phases:
+ *  - mapping partitions on its same keys
+ *  - joining partitions keys  (shuffle (that works really fast))
  */
 object Main extends App{
 
@@ -42,7 +48,7 @@ object Main extends App{
     .appName(APP_NAME)
     .getOrCreate()
 
-  val read: Dataset[Row] = spark.read
+  val read: Array[Row] = spark.read
     .option("inferSchema", "true")
     .option("header", "true")
     .csv(CSV_FILE_PATH)
@@ -52,6 +58,12 @@ object Main extends App{
     .filter(col("id").notEqual("149")) // transformation
     .filter(col("id").notEqual("138")) // transformation
     .filter(not(col("email").startsWith("Wendi"))) // transformation
+    .take(10) // action
+
+
+  // won't finish the localhost spark server
+  val scanner = new Scanner(System.in)
+  scanner.nextLine()
 
   //    read.show()
   //    spark.close()
