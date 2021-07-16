@@ -1,9 +1,7 @@
 package org.example
 
-import org.apache.hadoop.util.ShutdownHookManager
-import org.apache.spark.sql.SparkSession.setActiveSession
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.sql.functions.{col, not}
+import org.apache.spark.sql.{Row, SparkSession}
 
 import java.util.Scanner
 
