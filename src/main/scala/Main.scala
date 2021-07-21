@@ -1,6 +1,8 @@
 package org.example
 
-import org.apache.spark.sql.{Column, SparkSession, functions}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.{Row, RowFactory, SparkSession}
+
 
 /**
  * Dataset - is just a collection of rows
@@ -41,6 +43,16 @@ object Main {
     dataset.createOrReplaceTempView("users")
     spark.sql(sqlGroupByProfession).show(false)
 
+
+    val values = Seq[Row](
+      RowFactory.create("WARN", "16 December 2019"))
+    val structType = StructType(Array(
+      StructField("level", StringType),
+      StructField("datetime", StringType)
+    ))
+    val dataSet = spark.createDataFrame(
+      spark.sparkContext.parallelize(values), structType)
+    dataSet.show()
 
 
     //    dataset.filter("id = '100' OR id = '101'").show()
