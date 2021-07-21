@@ -1,7 +1,7 @@
 package org.example
 
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.dsl.expressions.StringToAttributeConversionHelper
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object Main {
 
@@ -15,6 +15,13 @@ object Main {
       .master(MASTER)
       .appName(APP_NAME)
       .getOrCreate()
+
+    val data: DataFrame = spark.read
+      .option("header", "true")
+      .csv(CSV_FILE_PATH)
+
+    data.selectExpr("id / 2").show()
+    data.select("id")
 
   }
 }
